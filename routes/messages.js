@@ -1,11 +1,12 @@
 const { Doctor } = require('../models/doctors')
+const { Lab } = require('../models/labs')
 const { User } = require('../models/users')
 
 module.exports = io => {
     const router = require('express').Router()
     const { Message, validateMessage } = require('../models/messages')
     router.get('/', async (req, res) => {
-        const messages = await Message.find()
+        const messages = await Message.find().sort({ date: -1 })
         const filterd = messages.filter(m => m.reciever.toString() === req.user._id.toString())
         const payload = []
         for (let i = 0; i < filterd.length; i++) {
@@ -36,6 +37,15 @@ module.exports = io => {
                     gender: u.gender,
                     profile_image: u.profile_image
                 }
+            } else if (mssg.senderType === 'Lab') {
+                const u = await Lab.findById(mssg.user)
+                opt.user = {
+                    _id: u._id,
+                    first_name: u.name,
+                    last_name: '',
+                    gender: u.gender,
+                    profile_image: u.profile_image
+                }
             }
             if (!payload.find(it => it.user._id.toString() === opt.user._id.toString())) {
                 payload.push(opt)
@@ -43,12 +53,14 @@ module.exports = io => {
                 payload.forEach(it => {
                     if (it => it.user._id.toString() === opt.user._id.toString()) {
                         it.content = opt.content,
-                        it.date = opt.date,
-                        it.file = opt.file
+                            it.date = opt.date > it.date ? opt.date : it.date ,
+                            it.file = opt.file
                     }
                 });
+                console.log(opt.date)
             }
         }
+        // payload.reverse()
         res.send(payload)
     })
 
@@ -68,6 +80,11 @@ module.exports = io => {
         res.send('Ok')
     })
 
+    router.get('/notification', async (req, res) => {
+        const dbmssg = await Message.find()
+        const messages = dbmssg.filter(m => m.reciever.toString() === req.user._id.toString() && m.isSeen === false)
+        res.send(messages.length.toString())
+    })
     router.get('/:id', async (req, res) => {
         const messages = await Message.find()
         const payload = []
@@ -77,6 +94,9 @@ module.exports = io => {
                 payload.push(messg)
             }
         }
+        await Message.updateMany({ reciever: req.user._id, user: req.params.id }, {
+            isSeen: true
+        })
         res.send(payload).toString()
     })
     return router

@@ -22,8 +22,8 @@ module.exports = io => {
     })
 
     router.post('/', async (req, res) => {
-        const { error } = validateHealthFeed({ ...req.body, user: req.user._id, })
-        if(error) return res.status(400).send(error.details[0].message)
+        const { error } = validateHealthFeed({ ...req.body, doctor: req.user._id, })
+        if (error) return res.status(400).send(error.details[0].message)
         const healthFeed = new HealthFeed({
             doctor: req.user._id,
             question: req.body.question,

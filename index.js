@@ -32,6 +32,7 @@ const documents = require('./routes/documents')(io)
 const pushTokens = require('./routes/pushToken')
 const notifications = require('./routes/notifications')
 const messages = require('./routes/messages')(io)
+const labs = require('./routes/labs')(io)
 
 app.use(express.json())
 app.use(express.urlencoded( { extended : true } ))
@@ -60,6 +61,7 @@ app.use('/documents', documents)
 app.use('/pushTokens', pushTokens)
 app.use('/notification', notifications)
 app.use('/messages', messages)
+app.use('/labs', labs)
 // io.on("connection", socket => {
 //     socket.on("user-connected", user => {
 //         console.log(user)
@@ -78,8 +80,8 @@ io.on('connection', (socket) => {
     });
 });
 
-// const db = process.env.DB || 'mongodb://localhost/itelmed-demo'
-const db = "mongodb://localhost/itelmed-test"
+const db = process.env.DB || 'mongodb://localhost/itelmed-demo'
+// const db = "mongodb://localhost/itelmed-test"
 mongoose.connect(db, { useFindAndModify: false })
     .then(() => console.log("Connected to mongodb"))
     .catch(err => console.log("Cannot conntect to mongodb", err))

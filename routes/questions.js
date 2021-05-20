@@ -7,6 +7,7 @@ module.exports = io => {
         const response = questions.map(q => ({
             question: q.question,
             answers: q.answers,
+            date: q.date,
             _id: q._id,
             user: { _id: q.user._id, first_name: q.user.first_name, last_name: q.user.last_name, profile_image: q.user.profile_image, gender: q.user.gender }
         }))

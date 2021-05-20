@@ -3,7 +3,17 @@ const Joi = require("joi")
 
 
 const AnswerSchema = mongoose.Schema({
-    doctor: { type: mongoose.Schema.Types.ObjectId, ref: "Doctors", required: true },
+    doctor: {
+        type: mongoose.Schema.Types.ObjectId,
+        // ref: "Doctors",
+        required: true,
+        refPath: 'onModel',
+        onModel: {
+            type: String,
+            required: true,
+            enum: ['Doctors', 'Labs']
+        }
+    },
     date: { type: Date, default: Date.now() },
     answer: { type: String, required: true },
 })
